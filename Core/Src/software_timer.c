@@ -23,6 +23,8 @@ void clearTimer(int index) {
 }
 
 void timerRun() {
+	uint8_t s[] = "Message from Timer Run\r\n";
+				HAL_UART_Transmit(&huart2, s, sizeof(s), 100);
 	for (int i = 0; i < NUM_OF_TIMERS; i++) {
 		if (timer_counter[i] > 0) {
 			timer_counter[i]--;
