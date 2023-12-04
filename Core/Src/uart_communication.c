@@ -7,8 +7,10 @@
 
 #include "uart_communication.h"
 
-
 void uart_communiation_fsm_run() {
+	uint8_t s[] = "Message from UART\r\n";
+	HAL_UART_Transmit(&huart2, s, sizeof(s), 100);
+
 	switch(uart_status) {
 	case WAIT_RST:
 		if (command_flag == 1) {
@@ -19,7 +21,7 @@ void uart_communiation_fsm_run() {
 				ADC_value = HAL_ADC_GetValue(&hadc1);
 				HAL_ADC_Stop(&hadc1);
 
-				HAL_UART_Transmit(&huart2, (void *)str, sprintf(str, "\r\n"), 1000);
+				HAL_UART_Transmit(&huart2, (void *)str, sprintf(str, "\r\n"), 100);
 				uart_status = SEND_ADC;
 				setTimer(1, 3000);
 			}
@@ -28,7 +30,7 @@ void uart_communiation_fsm_run() {
 		break;
 
 	case SEND_ADC:
-		HAL_UART_Transmit(&huart2, (void*)str, sprintf(str, "!ADC=%lu#\r\n", ADC_value), 1000);
+		HAL_UART_Transmit(&huart2, (void*)str, sprintf(str, "!ADC=%lu#\r\n", ADC_value), 100);
 		uart_status = WAIT_OK;
 		break;
 
@@ -37,7 +39,7 @@ void uart_communiation_fsm_run() {
 			command_flag = 0;
 
 			if (command[0] == 'O' && command[1] == 'K' && command_index == 2) {
-				HAL_UART_Transmit(&huart2, (void*)str, sprintf(str, "\r\n"), 1000);
+				HAL_UART_Transmit(&huart2, (void*)str, sprintf(str, "\r\n"), 100);
 				uart_status = WAIT_RST;
 				clearTimer(1);
 			}

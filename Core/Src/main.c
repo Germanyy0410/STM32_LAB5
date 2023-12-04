@@ -27,6 +27,7 @@
 #include "command_parser.h"
 #include "uart_communication.h"
 #include "global.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,10 +68,15 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void command_parser_fsm_run() {
+	uint8_t s[] = "Message from Command Parser Run\r\n";
+	HAL_UART_Transmit(&huart2, s, sizeof(s), 100);
 	if (buffer_flag == 1) {
 		command_parser_fsm();
 		buffer_flag = 0;
 	}
+}
+void toggle() {
+	HAL_GPIO_TogglePin(GREEN_GPIO_Port, GREEN_Pin);
 }
 /* USER CODE END 0 */
 
@@ -87,7 +93,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+  HAL_Init();`
 
   /* USER CODE BEGIN Init */
 
@@ -113,16 +119,17 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   HAL_UART_Receive_IT(&huart2, &temp, 1);
-  SCH_Init();
-  SCH_Add_Task(timerRun, 0, 1);
-  SCH_Add_Task(command_parser_fsm_run, 1, 10);
-  SCH_Add_Task(uart_communiation_fsm_run, 2, 10);
+
+  SCH_Add_Task(toggle, 25, 10);
+  SCH_Add_Task(timerRun, 8, 10);
+  SCH_Add_Task(command_parser_fsm_run, 5, 10);
+  SCH_Add_Task(uart_communiation_fsm_run, 20, 10);
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  SCH_Dispatcher_Task();
+	  SCH_Dispatch_Tasks();
   }
   /* USER CODE END 3 */
 }
